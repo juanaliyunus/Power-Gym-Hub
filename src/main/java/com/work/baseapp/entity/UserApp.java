@@ -6,7 +6,11 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
 import java.util.List;
 
 @Entity
@@ -15,7 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Data
 @Builder
-public class UserApp {
+public class UserApp implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;  // Nama field disarankan 'id' (huruf kecil)
@@ -48,4 +52,29 @@ public class UserApp {
 
     @OneToOne(mappedBy = "userApp")
     private User user;
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return role.stream().map(roleUser -> new SimpleGrantedAuthority(roleUser.getRole().name())).toList();
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }
