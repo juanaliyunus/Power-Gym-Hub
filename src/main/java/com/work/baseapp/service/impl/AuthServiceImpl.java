@@ -10,9 +10,11 @@ import com.work.baseapp.entity.User;
 import com.work.baseapp.entity.UserApp;
 import com.work.baseapp.repository.UserAppRepository;
 import com.work.baseapp.repository.UserRepository;
+import com.work.baseapp.security.jwt.JWTService;
 import com.work.baseapp.service.AuthService;
 import com.work.baseapp.service.RoleService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -31,6 +33,7 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -74,7 +77,10 @@ public class AuthServiceImpl implements AuthService {
         );
         Authentication authenticate = authenticationManager.authenticate(authentication);
         SecurityContextHolder.getContext().setAuthentication(authenticate);
-        UserApp userApp = jwt
-        return null;
+        UserApp userApp = (UserApp) authenticate.getPrincipal();
+        String token = jwtService.generateToken(userApp);
+        return LoginResponse.builder()
+                .accessToken(token)
+                .build();
     }
 }
