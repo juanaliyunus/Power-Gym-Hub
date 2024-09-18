@@ -10,6 +10,7 @@ import com.auth0.jwt.interfaces.JWTVerifier;
 import com.work.baseapp.dto.response.JWTClaims;
 import com.work.baseapp.entity.UserApp;
 import com.work.baseapp.security.jwt.JWTService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -77,7 +78,7 @@ public class JWTServiceImpl implements JWTService {
     }
 
     @Override
-    public JWTClaims getClaimsByToken(String token) {
+    public JWTClaims getUserInfoByToken(String token) {
         try {
             DecodedJWT decodedJWT = getDecodedJWT(token);
             if (decodedJWT == null) {
@@ -93,5 +94,14 @@ public class JWTServiceImpl implements JWTService {
             log.error("JWT verification failed: Invalid token or signature. Error message: {}", e.getMessage());
             return null;
         }
+    }
+
+    @Override
+    public String parseJWT(HttpServletRequest request) {
+        String token = request.getHeader("Authorization");
+        if (token !=null && token.startsWith("Bearer ")){
+            return token.substring(7);
+        }
+        return null;
     }
 }
